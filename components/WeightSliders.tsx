@@ -1,9 +1,7 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
 import type { Weights, WeatherType, UnitType } from "@/lib/types"
-import { FACTOR_DEFINITIONS } from "@/lib/factorDefinitions"
-import FactorTooltip from "@/components/FactorTooltip"
 
 type TierKey = "mustHave" | "niceToHave" | "bonus"
 type FactorKey = keyof Weights
@@ -46,33 +44,6 @@ const DEFAULT_TIERS: Record<TierKey, FactorKey[]> = {
   mustHave:   [],
   niceToHave: [],
   bonus:      [],
-}
-
-const TIERS_STORAGE_KEY = "mm_tiers"
-const ALL_FACTOR_KEYS = FACTOR_CONFIG.map((f) => f.key)
-
-function loadTiers(): Record<TierKey, FactorKey[]> | null {
-  try {
-    const raw = localStorage.getItem(TIERS_STORAGE_KEY)
-    if (!raw) return null
-    const parsed = JSON.parse(raw)
-    const seen = new Set<FactorKey>()
-    for (const tier of TIER_CONFIG) {
-      const list = parsed[tier.key]
-      if (!Array.isArray(list)) return null
-      for (const f of list) {
-        if (!ALL_FACTOR_KEYS.includes(f) || seen.has(f)) return null
-        seen.add(f)
-      }
-    }
-    return {
-      mustHave: parsed.mustHave ?? [],
-      niceToHave: parsed.niceToHave ?? [],
-      bonus: parsed.bonus ?? [],
-    }
-  } catch {
-    return null
-  }
 }
 
 // Ratio system: each Must Have factor always outweighs each Nice to Have factor,
@@ -125,21 +96,9 @@ export default function WeightSliders({
   const [tiers, setTiers] = useState<Record<TierKey, FactorKey[]>>(DEFAULT_TIERS)
   const [dragging, setDragging] = useState<FactorKey | null>(null)
   const [dragOverZone, setDragOverZone] = useState<DropZone | null>(null)
-  const skipNextSave = useRef(true)
-
-  // Restore persisted tiers after mount (client-only — avoids SSR/hydration mismatch)
-  useEffect(() => {
-    const saved = loadTiers()
-    if (saved) setTiers(saved)
-  }, [])
 
   useEffect(() => {
     onChange(computeWeights(tiers))
-    if (skipNextSave.current) {
-      skipNextSave.current = false
-    } else {
-      localStorage.setItem(TIERS_STORAGE_KEY, JSON.stringify(tiers))
-    }
   }, [tiers]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const assignedKeys = new Set(Object.values(tiers).flat())
@@ -187,24 +146,19 @@ export default function WeightSliders({
     if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOverZone(null)
   }
 
-  function FactorCard({ factorKey, showWeight, rank }: { factorKey: FactorKey; showWeight: boolean; rank?: number }) {
+  function FactorCard({ factorKey, showWeight }: { factorKey: FactorKey; showWeight: boolean }) {
     const factor = FACTOR_CONFIG.find(f => f.key === factorKey)!
     return (
       <div
         draggable
-        onDragStart={(e) => { e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", factorKey); setTimeout(() => setDragging(factorKey), 0) }}
+        onDragStart={(e) => { setDragging(factorKey); e.dataTransfer.effectAllowed = "move" }}
         onDragEnd={() => { setDragging(null); setDragOverZone(null) }}
         className={`flex items-center gap-2.5 px-3 py-2 bg-white border border-black/[0.07] cursor-grab active:cursor-grabbing select-none transition-opacity hover:border-black/20 ${
           dragging === factorKey ? "opacity-30" : ""
         }`}
       >
-        {rank !== undefined && (
-          <span className="text-[10px] font-mono text-neutral-300 w-3 text-right flex-shrink-0">{rank}</span>
-        )}
         <div className="w-2 h-2 flex-shrink-0" style={{ backgroundColor: factor.color }} />
-        <FactorTooltip text={FACTOR_DEFINITIONS[factorKey]} className="flex-1">
-          <span className="text-sm text-black">{factor.label}</span>
-        </FactorTooltip>
+        <span className="text-sm text-black flex-1">{factor.label}</span>
         {showWeight && (
           <span className="text-[11px] font-mono text-neutral-400 tabular-nums">
             {Number.isFinite(weights[factorKey]) ? weights[factorKey] : 0}%
@@ -284,8 +238,8 @@ export default function WeightSliders({
                     </span>
                   </div>
                 ) : (
-                  factors.map((factorKey, idx) => (
-                    <FactorCard key={factorKey} factorKey={factorKey} showWeight={true} rank={idx + 1} />
+                  factors.map((factorKey) => (
+                    <FactorCard key={factorKey} factorKey={factorKey} showWeight={true} />
                   ))
                 )}
               </div>
