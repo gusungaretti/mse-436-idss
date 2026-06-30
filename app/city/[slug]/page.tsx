@@ -79,7 +79,7 @@ export default async function CityDetailPage({ params }: { params: Promise<{ slu
           {[
             { label: "Avg. 1BR rent",       value: `$${city.avgRent1BR.toLocaleString()}`,          sub: "per month" },
             { label: "Walk Score",           value: String(city.walkScore),                           sub: "out of 100" },
-            { label: "Crime Severity",       value: String(city.crimeIndex),                          sub: "100 = national avg" },
+            { label: "Crime Severity",       value: String(city.crimeIndex),                          sub: "national avg 100" },
             { label: "Avg. temperature",     value: `${city.avgTempC}°C`,                            sub: `${city.annualPrecipMm} mm/yr` },
             { label: "Median income",        value: `$${city.medianHouseholdIncome.toLocaleString()}`, sub: "after-tax household" },
             { label: "Transit score",        value: String(city.transitScore),                        sub: "out of 100" },
@@ -107,7 +107,7 @@ export default async function CityDetailPage({ params }: { params: Promise<{ slu
           <ScoreRow label="Affordability" score={city.factorScores.affordability} color="#10b981" raw={`$${city.avgRent1BR.toLocaleString()}`} />
           <ScoreRow label="Safety"        score={city.factorScores.safety}        color="#f97316" raw={`CSI ${city.crimeIndex}`} />
           <ScoreRow label="Weather"       score={city.factorScores.weather}       color="#0ea5e9" raw={`${city.avgTempC}°C`} />
-          <ScoreRow label="Socioeconomic" score={city.factorScores.income}        color="#8b5cf6" raw={`$${(city.medianHouseholdIncome / 1000).toFixed(0)}k`} />
+          <ScoreRow label="Income"        score={city.factorScores.income}        color="#8b5cf6" raw={`$${(city.medianHouseholdIncome / 1000).toFixed(0)}k`} />
           <ScoreRow label="Transit"       score={city.factorScores.transit}       color="#06b6d4" raw={`${city.transitScore}/100`} />
           <ScoreRow label="Employment"    score={city.factorScores.employment}    color="#84cc16" raw={`${city.unemploymentRate}% unemp`} />
           <ScoreRow label="Air Quality"   score={city.factorScores.airQuality}    color="#64748b" raw={`${city.pm25} μg/m³`} />
