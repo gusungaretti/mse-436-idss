@@ -17,20 +17,27 @@ const CANADA_CENTER: [number, number] = [-96, 62]
 type Position = { coordinates: [number, number]; zoom: number }
 const DEFAULT_POSITION: Position = { coordinates: CANADA_CENTER, zoom: 1 }
 
+function lerp(a: number, b: number, t: number) { return Math.round(a + (b - a) * t) }
+function lerpRgb(a: [number,number,number], b: [number,number,number], t: number): string {
+  return `rgb(${lerp(a[0],b[0],t)},${lerp(a[1],b[1],t)},${lerp(a[2],b[2],t)})`
+}
 function scoreToColor(score: number): string {
-  if (score >= 70) return "#16a34a"
-  if (score >= 55) return "#ca8a04"
-  if (score >= 40) return "#d97706"
-  return "#dc2626"
+  const t = Math.max(0, Math.min(100, score)) / 100
+  const red:    [number,number,number] = [239, 68,  68]   // #ef4444
+  const yellow: [number,number,number] = [234, 179, 8]    // #eab308
+  const green:  [number,number,number] = [34,  197, 94]   // #22c55e
+  if (t <= 0.5) return lerpRgb(red, yellow, t * 2)
+  return lerpRgb(yellow, green, (t - 0.5) * 2)
 }
 
 interface Props {
   cities: ScoredCity[]
   selectedSlug?: string
   onCityClick?: (slug: string) => void
+  hasActiveFactors: boolean
 }
 
-export default function CanadaMap({ cities, selectedSlug, onCityClick }: Props) {
+export default function CanadaMap({ cities, selectedSlug, onCityClick, hasActiveFactors }: Props) {
   const router = useRouter()
 
   // GeoJSON loaded once — never re-fetched on re-render
@@ -100,8 +107,8 @@ export default function CanadaMap({ cities, selectedSlug, onCityClick }: Props) 
           style={{ left: tooltip.x, top: tooltip.y - 52, transform: "translateX(-50%)" }}
         >
           <div className="text-xs font-medium text-black">{tooltip.name}</div>
-          <div className="text-xs font-mono font-semibold mt-0.5" style={{ color: scoreToColor(tooltip.score) }}>
-            {tooltip.score}
+          <div className="text-xs font-mono font-semibold mt-0.5" style={{ color: hasActiveFactors ? scoreToColor(tooltip.score) : "#9ca3af" }}>
+            {hasActiveFactors ? tooltip.score : "—"}
           </div>
         </div>
       )}
@@ -137,7 +144,7 @@ export default function CanadaMap({ cities, selectedSlug, onCityClick }: Props) 
 
           {cities.map((city) => {
             const isSelected = city.slug === selectedSlug
-            const color    = scoreToColor(city.totalScore)
+            const color    = hasActiveFactors ? scoreToColor(city.totalScore) : "#9ca3af"
             const r        = (isSelected ? 7 : 5) * dotScale
             const glowR    = (isSelected ? 11 : 8) * dotScale
             const fontSize = 4.5 * dotScale

@@ -9,13 +9,27 @@ export default function LandingPage() {
       <nav className="absolute top-0 left-0 right-0 z-50">
         <div className="max-w-6xl mx-auto px-8 h-16 flex items-center justify-between">
           <span className="text-sm font-semibold text-white drop-shadow-sm">Maple Moving</span>
-          <Link
-            href="/explore"
-            className="flex items-center gap-1.5 text-sm font-medium px-4 py-2 bg-white/15 backdrop-blur-sm border border-white/20 text-white hover:bg-white/25 transition-colors"
-          >
-            Explore cities
-            <ArrowRight size={13} />
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/search"
+              className="text-sm font-medium text-white/80 hover:text-white transition-colors"
+            >
+              Search
+            </Link>
+            <Link
+              href="/methodology"
+              className="text-sm font-medium text-white/80 hover:text-white transition-colors"
+            >
+              Methodology
+            </Link>
+            <Link
+              href="/explore"
+              className="flex items-center gap-1.5 text-sm font-medium px-4 py-2 bg-white/15 backdrop-blur-sm border border-white/20 text-white hover:bg-white/25 transition-colors"
+            >
+              Explore cities
+              <ArrowRight size={13} />
+            </Link>
+          </div>
         </div>
       </nav>
 
@@ -51,7 +65,7 @@ export default function LandingPage() {
               { label: "Affordability", source: "CMHC Rental Market Survey",               color: "#10b981", detail: "Average rent by unit size vs. your monthly budget" },
               { label: "Safety",        source: "StatsCan Crime Severity Index",           color: "#f97316", detail: "Weighted crime rate relative to the national average" },
               { label: "Weather",       source: "Environment Canada 1991–2020",            color: "#0ea5e9", detail: "Annual temperature and precipitation matched to your climate preference" },
-              { label: "Income",        source: "Canadian Income Survey",                  color: "#8b5cf6", detail: "Median after-tax household income by CMA" },
+              { label: "Socioeconomic", source: "Canadian Income Survey",                  color: "#8b5cf6", detail: "Median after-tax household income by CMA" },
               { label: "Transit",       source: "Canadian Public Transit Network DB",      color: "#06b6d4", detail: "Public transit coverage and route density" },
               { label: "Employment",    source: "Labour Force Survey by CMA",              color: "#84cc16", detail: "Annual unemployment rate across major Canadian cities" },
               { label: "Air Quality",   source: "National Air Pollution Surveillance",     color: "#64748b", detail: "Annual average PM2.5 concentration (lower is cleaner)" },
@@ -98,6 +112,13 @@ export default function LandingPage() {
                 </div>
               ))}
             </div>
+            <Link
+              href="/methodology"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-black mt-14 hover:opacity-70 transition-opacity"
+            >
+              Read the full scoring methodology
+              <ArrowRight size={14} />
+            </Link>
           </div>
         </section>
 
